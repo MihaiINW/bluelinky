@@ -73,72 +73,73 @@ export default class CanadianVehicle extends Vehicle {
     logger.debug('Begin status request, polling car', statusConfig.refresh);
     try {
       let vehicleStatus: RawVehicleStatus | null = null;
-      if (statusConfig.useInfo) {
-        await this.setInfo(statusConfig.refresh);
-        if (this._info) {
-          vehicleStatus = this._info.status;
-        }
-      } else {
-        const endpoint = statusConfig.refresh
-          ? this.controller.environment.endpoints.remoteStatus
-          : this.controller.environment.endpoints.status;
-        const response = await this.request(endpoint, {});
-        vehicleStatus = response.result?.status;
+      // if (statusConfig.useInfo) {
+      //   await this.setInfo(statusConfig.refresh);
+      //   if (this._info) {
+      //     vehicleStatus = this._info.status;
+      //   }
+      // } else {
+      //   const endpoint = statusConfig.refresh
+      //     ? this.controller.environment.endpoints.remoteStatus
+      //     : this.controller.environment.endpoints.status;
+      //   const response = await this.request(endpoint, {});
+      //   vehicleStatus = response.result?.status;
 
-        if (response?.error) {
-          throw response?.error?.errorDesc;
-        }
-      }
-      logger.debug(vehicleStatus);
-      let parsedStatus: VehicleStatus | null = null;
-      if (vehicleStatus) {
-        parsedStatus = {
-          chassis: {
-            hoodOpen: vehicleStatus?.hoodOpen,
-            trunkOpen: vehicleStatus?.trunkOpen,
-            locked: vehicleStatus?.doorLock,
-            openDoors: {
-              frontRight: !!vehicleStatus?.doorOpen?.frontRight,
-              frontLeft: !!vehicleStatus?.doorOpen?.frontLeft,
-              backLeft: !!vehicleStatus?.doorOpen?.backLeft,
-              backRight: !!vehicleStatus?.doorOpen?.backRight,
-            },
-            tirePressureWarningLamp: {
-              rearLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearLeft,
-              frontLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontLeft,
-              frontRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontRight,
-              rearRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearRight,
-              all: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampAll,
-            },
-          },
-          climate: {
-            active: vehicleStatus?.airCtrlOn,
-            steeringwheelHeat: !!vehicleStatus?.steerWheelHeat,
-            sideMirrorHeat: false,
-            rearWindowHeat: !!vehicleStatus?.sideBackWindowHeat,
-            defrost: vehicleStatus?.defrost,
-            temperatureSetpoint: vehicleStatus?.airTemp?.value,
-            temperatureUnit: vehicleStatus?.airTemp?.unit,
-          },
+      //   if (response?.error) {
+      //     throw response?.error?.errorDesc;
+      //   }
+      // }
+      // logger.debug(vehicleStatus);
+      // let parsedStatus: VehicleStatus | null = null;
+      // if (vehicleStatus) {
+      //   parsedStatus = {
+      //     chassis: {
+      //       hoodOpen: vehicleStatus?.hoodOpen,
+      //       trunkOpen: vehicleStatus?.trunkOpen,
+      //       locked: vehicleStatus?.doorLock,
+      //       openDoors: {
+      //         frontRight: !!vehicleStatus?.doorOpen?.frontRight,
+      //         frontLeft: !!vehicleStatus?.doorOpen?.frontLeft,
+      //         backLeft: !!vehicleStatus?.doorOpen?.backLeft,
+      //         backRight: !!vehicleStatus?.doorOpen?.backRight,
+      //       },
+      //       tirePressureWarningLamp: {
+      //         rearLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearLeft,
+      //         frontLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontLeft,
+      //         frontRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontRight,
+      //         rearRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearRight,
+      //         all: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampAll,
+      //       },
+      //     },
+      //     climate: {
+      //       active: vehicleStatus?.airCtrlOn,
+      //       steeringwheelHeat: !!vehicleStatus?.steerWheelHeat,
+      //       sideMirrorHeat: false,
+      //       rearWindowHeat: !!vehicleStatus?.sideBackWindowHeat,
+      //       defrost: vehicleStatus?.defrost,
+      //       temperatureSetpoint: vehicleStatus?.airTemp?.value,
+      //       temperatureUnit: vehicleStatus?.airTemp?.unit,
+      //     },
 
-          // TODO: fix props for parsed???
-          // Seems some of the translation would have to account for EV and ICE
-          // as they are often in different locations on the response
-          // example EV status is in lib/__mock__/canadianStatus.json
-          engine: {
-            ignition: vehicleStatus?.engine,
-            accessory: vehicleStatus?.acc,
-            range: vehicleStatus?.dte?.value,
-            charging: vehicleStatus?.evStatus?.batteryCharge,
-            batteryCharge12v: vehicleStatus?.battery?.batSoc,
-            batteryChargeHV: vehicleStatus?.evStatus?.batteryStatus,
-          },
-          lastupdate: parseDate(vehicleStatus?.lastStatusDate),
-        };
-      }
+      //     // TODO: fix props for parsed???
+      //     // Seems some of the translation would have to account for EV and ICE
+      //     // as they are often in different locations on the response
+      //     // example EV status is in lib/__mock__/canadianStatus.json
+      //     engine: {
+      //       ignition: vehicleStatus?.engine,
+      //       accessory: vehicleStatus?.acc,
+      //       range: vehicleStatus?.dte?.value,
+      //       charging: vehicleStatus?.evStatus?.batteryCharge,
+      //       batteryCharge12v: vehicleStatus?.battery?.batSoc,
+      //       batteryChargeHV: vehicleStatus?.evStatus?.batteryStatus,
+      //     },
+      //     lastupdate: parseDate(vehicleStatus?.lastStatusDate),
+      //   };
+      // }
 
-      this._status = statusConfig.parsed ? parsedStatus : vehicleStatus;
-      return this._status;
+      // this._status = statusConfig.parsed ? parsedStatus : vehicleStatus;
+      // return this._status;
+      return null;
     } catch (err) {
       // @ts-ignore
       throw err.message;

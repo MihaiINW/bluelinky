@@ -43,228 +43,94 @@ export enum EVChargeModeTypes {
 
 // Status remapped
 export interface VehicleStatus {
-  engine: {
-    ignition: boolean;
-    batteryCharge?: number;
-    charging?: boolean;
-    timeToFullCharge?: unknown;
-    range: number;
-    rangeGas?: number;
-    rangeEV?: number;
-    plugedTo?: EVPlugTypes;
-    estimatedCurrentChargeDuration?: number;
-    estimatedFastChargeDuration?: number;
-    estimatedPortableChargeDuration?: number;
-    estimatedStationChargeDuration?: number;
-    batteryCharge12v?: number;
-    batteryChargeHV?: number;
-    accessory: boolean;
-  };
-  climate: {
-    active: boolean;
-    steeringwheelHeat: boolean;
-    sideMirrorHeat: boolean;
-    rearWindowHeat: boolean;
-    temperatureSetpoint: number | string;
-    temperatureUnit: number;
-    defrost: boolean;
-  };
-  chassis: {
-    hoodOpen: boolean;
-    trunkOpen: boolean;
-    locked: boolean;
-    openDoors: {
-      frontRight: boolean;
-      frontLeft: boolean;
-      backLeft: boolean;
-      backRight: boolean;
+  airCtrlOn: boolean;
+  engine: boolean;
+  doorLock: boolean;
+  doorOpen: {
+    frontLeft: boolean;
+    frontRight: boolean;
+    backLeft: boolean;
+    backRight: boolean;
+  },
+  trunkOpen: boolean;
+  airTemp: { value: string };
+  defrost: boolean;
+  evStatus: {
+    batteryCharge: boolean;
+    batteryStatus: number;
+    batteryPlugin: number;
+    drvDistance: [
+      {
+        rangeByFuel: {
+          evModeRange: { value: number };
+          totalAvailableRange: { value: number };
+        }
+      }
+    ]
+  },
+  hoodOpen: boolean;
+  tirePressureLamp: { tirePressureWarningLampAll: boolean };
+  battery: { batSoc: number };
+  time: string;
+  odometer: { value: number };
+  vehicleLocation: {
+    coord: {
+      lat?: number;
+      lon: number;
+      alt: number;
     };
-    tirePressureWarningLamp: {
-      rearLeft: boolean;
-      frontLeft: boolean;
-      frontRight: boolean;
-      rearRight: boolean;
-      all: boolean;
-    };
+    speed: { value: number; };
   };
-  lastupdate: Date | null;
+  fuelLevel?: number
+  dte?: {
+    value: number;
+  }
 }
 
 // TODO: fix/update
 export interface FullVehicleStatus {
-  vehicleLocation: {
-    coord: { lat: number; lon: number; alt: number; type: number };
-    head: number;
-    speed: { value: number; unit: number };
-    accuracy: { hdop: number; pdop: number };
-    time: string;
-  };
-  odometer: { value: number; unit: number };
-  vehicleStatus: {
-    time: string;
-    airCtrlOn: boolean;
-    engine: boolean;
-    doorLock: boolean;
-    doorOpen: { frontRight: number; frontLeft: number; backLeft: number; backRight: number };
-    trunkOpen: boolean;
-    airTemp: { unit: number; hvacTempType: number; value: string };
-    defrost: boolean;
-    acc: boolean;
-    ign3: boolean;
-    hoodOpen: boolean;
-    transCond: boolean;
-    steerWheelHeat: number;
-    sideBackWindowHeat: number;
-    tirePressureLamp: {
-      tirePressureWarningLampAll: number;
-      tirePressureWarningLampFL: number;
-      tirePressureWarningLampFR: number;
-      tirePressureWarningLampRL: number;
-      tirePressureWarningLampRR: number;
-    };
-    battery: { batSoc: number; batState: number };
-    evStatus: {
-      batteryCharge: boolean;
-      batteryStatus: number;
-      batteryPlugin: number;
-      remainTime2: {
-        etc1: { value: number; unit: number };
-        etc2: { value: number; unit: number };
-        etc3: { value: number; unit: number };
-        atc: { value: number; unit: number };
-      };
-      drvDistance: [
-        {
-          rangeByFuel: {
-            gasModeRange: { value: number; unit: number };
-            evModeRange: { value: number; unit: number };
-            totalAvailableRange: { value: number; unit: number };
-          };
-          type: number;
+  airCtrlOn: boolean;
+  engine: boolean;
+  doorLock: boolean;
+  doorOpen: {
+    frontLeft: boolean;
+    frontRight: boolean;
+    backLeft: boolean;
+    backRight: boolean;
+  },
+  trunkOpen: boolean;
+  airTemp: { value: string };
+  defrost: boolean;
+  evStatus: {
+    batteryCharge: boolean;
+    batteryStatus: number;
+    batteryPlugin: number;
+    drvDistance: [
+      {
+        rangeByFuel: {
+          evModeRange: { value: number };
+          totalAvailableRange: { value: number };
         }
-      ];
-      // "reservChargeInfos": {
-      //   "reservChargeInfo": {
-      //     "reservChargeInfoDetail": {
-      //       "reservInfo": {
-      //         "day": [
-      //           1,
-      //           2,
-      //           3,
-      //           4,
-      //           5
-      //         ],
-      //         "time": {
-      //           "time": "0800",
-      //           "timeSection": 0
-      //         }
-      //       },
-      //       "reservChargeSet": true,
-      //       "reservFatcSet": {
-      //         "defrost": false,
-      //         "airTemp": {
-      //           "value": "00H",
-      //           "unit": 0,
-      //           "hvacTempType": 1
-      //         },
-      //         "airCtrl": 0,
-      //         "heating1": 0
-      //       }
-      //     }
-      //   },
-      //   "offpeakPowerInfo": {
-      //     "offPeakPowerTime1": {
-      //       "starttime": {
-      //         "time": "1200",
-      //         "timeSection": 0
-      //       },
-      //       "endtime": {
-      //         "time": "1200",
-      //         "timeSection": 0
-      //       }
-      //     },
-      //     "offPeakPowerFlag": 1
-      //   },
-      //   "reserveChargeInfo2": {
-      //     "reservChargeInfoDetail": {
-      //       "reservInfo": {
-      //         "day": [
-      //           9
-      //         ],
-      //         "time": {
-      //           "time": "1200",
-      //           "timeSection": 0
-      //         }
-      //       },
-      //       "reservChargeSet": false,
-      //       "reservFatcSet": {
-      //         "defrost": false,
-      //         "airTemp": {
-      //           "value": "00H",
-      //           "unit": 0,
-      //           "hvacTempType": 1
-      //         },
-      //         "airCtrl": 0,
-      //         "heating1": 0
-      //       }
-      //     }
-      //   },
-      //   "reservFlag": 0,
-      //   "ect": {
-      //     "start": {
-      //       "day": 9,
-      //       "time": {
-      //         "time": "1200",
-      //         "timeSection": 0
-      //       }
-      //     },
-      //     "end": {
-      //       "day": 9,
-      //       "time": {
-      //         "time": "1200",
-      //         "timeSection": 0
-      //       }
-      //     }
-      //   },
-      //   "targetSOClist": [
-      //     {
-      //       "targetSOClevel": 90,
-      //       "dte": {
-      //         "rangeByFuel": {
-      //           "evModeRange": {
-      //             "value": 392,
-      //             "unit": 1
-      //           },
-      //           "totalAvailableRange": {
-      //             "value": 392,
-      //             "unit": 1
-      //           }
-      //         },
-      //         "type": 2
-      //       },
-      //       "plugType": 0
-      //     },
-      //     {
-      //       "targetSOClevel": 80,
-      //       "dte": {
-      //         "rangeByFuel": {
-      //           "evModeRange": {
-      //             "value": 345,
-      //             "unit": 1
-      //           },
-      //           "totalAvailableRange": {
-      //             "value": 345,
-      //             "unit": 1
-      //           }
-      //         },
-      //         "type": 2
-      //       },
-      //       "plugType": 1
-      //     }
-      //   ]
-      // }
+      }
+    ]
+  },
+  hoodOpen: boolean;
+  tirePressureLamp: { tirePressureWarningLampAll: boolean };
+  battery: { batSoc: number };
+  time: string;
+  odometer: { value: number };
+  vehicleLocation: {
+    coord: {
+      lat?: number;
+      lon: number;
+      alt: number;
     };
+    speed: { value: number; };
   };
+  fuelLevel?: number
+  dte?: {
+    value: number;
+  }
 }
 
 // TODO: remove

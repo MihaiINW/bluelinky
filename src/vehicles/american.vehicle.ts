@@ -169,60 +169,61 @@ export default class AmericanVehicle extends Vehicle {
       ...input,
     };
 
-    const response = await this._request('/ac/v2/rcs/rvs/vehicleStatus', {
-      method: 'GET',
-      headers: {
-        'REFRESH': statusConfig.refresh.toString(),
-        ...this.getDefaultHeaders(),
-      },
-    });
+    // const response = await this._request('/ac/v2/rcs/rvs/vehicleStatus', {
+    //   method: 'GET',
+    //   headers: {
+    //     'REFRESH': statusConfig.refresh.toString(),
+    //     ...this.getDefaultHeaders(),
+    //   },
+    // });
 
-    const { vehicleStatus } = JSON.parse(response.body);
-    const parsedStatus: VehicleStatus = {
-      chassis: {
-        hoodOpen: vehicleStatus?.hoodOpen,
-        trunkOpen: vehicleStatus?.trunkOpen,
-        locked: vehicleStatus?.doorLock,
-        openDoors: {
-          frontRight: !!vehicleStatus?.doorOpen?.frontRight,
-          frontLeft: !!vehicleStatus?.doorOpen?.frontLeft,
-          backLeft: !!vehicleStatus?.doorOpen?.backLeft,
-          backRight: !!vehicleStatus?.doorOpen?.backRight,
-        },
-        tirePressureWarningLamp: {
-          rearLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearLeft,
-          frontLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontLeft,
-          frontRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontRight,
-          rearRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearRight,
-          all: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampAll,
-        },
-      },
-      climate: {
-        active: vehicleStatus?.airCtrlOn,
-        steeringwheelHeat: !!vehicleStatus?.steerWheelHeat,
-        sideMirrorHeat: false,
-        rearWindowHeat: !!vehicleStatus?.sideBackWindowHeat,
-        defrost: vehicleStatus?.defrost,
-        temperatureSetpoint: vehicleStatus?.airTemp?.value,
-        temperatureUnit: vehicleStatus?.airTemp?.unit,
-      },
-      engine: {
-        ignition: vehicleStatus?.engine,
-        accessory: vehicleStatus?.acc,
-        // try ev range first then fallback to ice range
-        range:
-          vehicleStatus?.evStatus?.drvDistance[0]?.rangeByFuel?.totalAvailableRange?.value ||
-          vehicleStatus?.dte?.value,
-        charging: vehicleStatus?.evStatus?.batteryCharge,
-        batteryCharge12v: vehicleStatus?.battery?.batSoc,
-        batteryChargeHV: vehicleStatus?.evStatus?.batteryStatus,
-      },
-      lastupdate: new Date(vehicleStatus?.dateTime),
-    };
+    // const { vehicleStatus } = JSON.parse(response.body);
+    // const parsedStatus: VehicleStatus = {
+    //   chassis: {
+    //     hoodOpen: vehicleStatus?.hoodOpen,
+    //     trunkOpen: vehicleStatus?.trunkOpen,
+    //     locked: vehicleStatus?.doorLock,
+    //     openDoors: {
+    //       frontRight: !!vehicleStatus?.doorOpen?.frontRight,
+    //       frontLeft: !!vehicleStatus?.doorOpen?.frontLeft,
+    //       backLeft: !!vehicleStatus?.doorOpen?.backLeft,
+    //       backRight: !!vehicleStatus?.doorOpen?.backRight,
+    //     },
+    //     tirePressureWarningLamp: {
+    //       rearLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearLeft,
+    //       frontLeft: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontLeft,
+    //       frontRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampFrontRight,
+    //       rearRight: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampRearRight,
+    //       all: !!vehicleStatus?.tirePressureLamp?.tirePressureWarningLampAll,
+    //     },
+    //   },
+    //   climate: {
+    //     active: vehicleStatus?.airCtrlOn,
+    //     steeringwheelHeat: !!vehicleStatus?.steerWheelHeat,
+    //     sideMirrorHeat: false,
+    //     rearWindowHeat: !!vehicleStatus?.sideBackWindowHeat,
+    //     defrost: vehicleStatus?.defrost,
+    //     temperatureSetpoint: vehicleStatus?.airTemp?.value,
+    //     temperatureUnit: vehicleStatus?.airTemp?.unit,
+    //   },
+    //   engine: {
+    //     ignition: vehicleStatus?.engine,
+    //     accessory: vehicleStatus?.acc,
+    //     // try ev range first then fallback to ice range
+    //     range:
+    //       vehicleStatus?.evStatus?.drvDistance[0]?.rangeByFuel?.totalAvailableRange?.value ||
+    //       vehicleStatus?.dte?.value,
+    //     charging: vehicleStatus?.evStatus?.batteryCharge,
+    //     batteryCharge12v: vehicleStatus?.battery?.batSoc,
+    //     batteryChargeHV: vehicleStatus?.evStatus?.batteryStatus,
+    //   },
+    //   lastupdate: new Date(vehicleStatus?.dateTime),
+    // };
 
-    this._status = statusConfig.parsed ? parsedStatus : vehicleStatus;
+    // this._status = statusConfig.parsed ? parsedStatus : vehicleStatus;
 
-    return this._status;
+    // return this._status;
+    return null;
   }
 
   public async unlock(): Promise<string> {
