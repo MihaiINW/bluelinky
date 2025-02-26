@@ -20,6 +20,7 @@ import {
   VehicleDayTrip,
   VehicleMonthTrip,
   VehicleStartOptions,
+  NewStatus,
 } from '../interfaces/common.interfaces';
 
 import logger from '../logger';
@@ -269,6 +270,88 @@ export default class EuropeanVehicle extends Vehicle {
       throw manageBluelinkyError(err, 'EuropeVehicle.status');
     }
   }
+
+  public async getCarStatus(input: VehicleStatusOptions): Promise<NewStatus | null> {
+    const statusConfig = {
+      ...DEFAULT_VEHICLE_STATUS_OPTIONS,
+      ...input,
+    };
+
+    const http = await this.controller.getVehicleHttpService();
+
+    try {
+      const cachedResponse = this.updateRates(
+        await http.get(`/api/v2/spa/vehicles/${this.vehicleConfig.id}/ccs2/carstatus/latest`)
+      );
+
+      const fullStatus = cachedResponse.body.resMsg;
+
+      // if (statusConfig.refresh) {
+      //   const statusResponse = this.updateRates(
+      //     await http.get(`/api/v2/spa/vehicles/${this.vehicleConfig.id}/status`)
+      //   );
+      //   fullStatus.vehicleStatus = statusResponse.body.resMsg;
+
+      //   const locationResponse = this.updateRates(
+      //     await http.get(`/api/v2/spa/vehicles/${this.vehicleConfig.id}/location`)
+      //   );
+      //   fullStatus.vehicleLocation = locationResponse.body.resMsg.gpsDetail;
+      // }
+
+      // this._fullStatus = fullStatus;
+      return this.statusParsing(fullStatus);
+    } catch (err) {
+      throw manageBluelinkyError(err, 'EuropeVehicle.fullStatus');
+    }
+  }
+
+  public statusParsing(vehicleStatus) {
+    const parsedStatus: NewStatus = {
+      airCtrlOn: !["OFF", "255"].includes(vehicleStatus?.state?.Vehicle?.Cabin?.HVAC?.Row1?.Driver?.Temperature?.Value),
+      engine: !!vehicleStatus?.state?.Vehicle?.DrivingReady,
+      doorLock: !vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row1?.Driver?.Lock && !vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row1?.Passenger?.Lock && !vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row2?.Left?.Lock && !vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row2?.Right?.Lock,
+      doorOpen: {
+        frontLeft: vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row1?.Driver?.Open,
+        frontRight: vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row1?.Passenger?.Open,
+        backLeft: vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row2?.Left?.Open,
+        backRight: vehicleStatus?.state?.Vehicle?.Cabin?.Door?.Row2?.Right?.Open,
+      },
+      trunkOpen: !!vehicleStatus?.state?.Vehicle?.Body?.Trunk?.Open,
+      airTemp: { value: vehicleStatus?.state?.Vehicle?.Cabin?.HVAC?.Row1?.Driver?.Temperature?.Value }, // we have to modify this function "getTempFromCode" to return the code if it dosen't contain "H" in Homey app
+      defrost: vehicleStatus?.state?.Vehicle?.Body?.Windshield?.Rear?.Defog?.State || vehicleStatus?.state?.Vehicle?.Body?.Windshield?.Front?.Defog?.State,
+      evStatus: {
+        batteryCharge: vehicleStatus?.state?.Vehicle?.Green?.ChargingInformation?.Charging?.State !== undefined
+        ? !!vehicleStatus?.state?.Vehicle?.Green?.ChargingInformation?.Charging?.State 
+        : !!vehicleStatus?.state?.Vehicle?.Green?.ChargingInformation?.Charging?.RemainTime, // Boechie car does not have Charging.State for this we relay on Charging.RemainTime
+        batteryStatus: vehicleStatus?.state?.Vehicle?.Electronics?.Battery?.Level,
+        batteryPlugin: vehicleStatus?.state?.Vehicle?.Green?.ChargingInformation?.ConnectorFastening?.State,// check 
+        drvDistance: [
+          {
+            rangeByFuel: {
+              evModeRange: { value: vehicleStatus?.state?.Vehicle?.Drivetrain?.FuelSystem?.DTE?.EV ? vehicleStatus?.state?.Vehicle?.Drivetrain?.FuelSystem?.DTE?.EV: vehicleStatus?.state?.Vehicle?.Drivetrain?.FuelSystem?.DTE?.Total },
+              totalAvailableRange: { value: vehicleStatus?.state?.Vehicle?.Drivetrain?.FuelSystem?.DTE?.Total }
+            }
+          }
+        ]
+      },
+      hoodOpen: !!vehicleStatus?.state?.Vehicle?.Body?.Hood?.Open,
+      tirePressureLamp: { tirePressureWarningLampAll: !!vehicleStatus?.state?.Vehicle?.Chassis?.Axle?.Tire?.PressureLow },
+      battery: { batSoc: vehicleStatus?.state?.Vehicle?.Green?.BatteryManagement?.BatteryRemain?.Ratio },
+      time: vehicleStatus?.state?.Vehicle?.Date?.split('.')[0],
+      odometer: { value: vehicleStatus?.state?.Vehicle?.Drivetrain?.Odometer },
+      vehicleLocation: { 
+        coord: {
+          lat: vehicleStatus?.state?.Vehicle?.Location?.GeoCoord?.Latitude,
+          lon: vehicleStatus?.state?.Vehicle?.Location?.GeoCoord?.Longitude,
+          alt: vehicleStatus?.state?.Vehicle?.Location?.GeoCoord?.Altitude,
+       },
+       speed: { value: vehicleStatus?.state?.Vehicle?.Location?.Speed?.Value }
+      },
+      dte: { value: vehicleStatus?.state?.Vehicle?.Drivetrain?.FuelSystem?.DTE?.Total}
+    };
+
+    return parsedStatus;
+   }
 
   public async odometer(): Promise<VehicleOdometer | null> {
     const http = await this.controller.getVehicleHttpService();

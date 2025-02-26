@@ -41,6 +41,51 @@ export enum EVChargeModeTypes {
   SLOW = 1,
 }
 
+export interface NewStatus {
+  airCtrlOn: boolean;
+  engine: boolean;
+  doorLock: boolean;
+  doorOpen: {
+    frontLeft: boolean;
+    frontRight: boolean;
+    backLeft: boolean;
+    backRight: boolean;
+  },
+  trunkOpen: boolean;
+  airTemp: { value: string };
+  defrost: boolean;
+  evStatus: {
+    batteryCharge: boolean;
+    batteryStatus: number;
+    batteryPlugin: number;
+    drvDistance: [
+      {
+        rangeByFuel: {
+          evModeRange: { value: number };
+          totalAvailableRange: { value: number };
+        }
+      }
+    ]
+  },
+  hoodOpen: boolean;
+  tirePressureLamp: { tirePressureWarningLampAll: boolean };
+  battery: { batSoc: number };
+  time: string;
+  odometer: { value: number };
+  vehicleLocation: {
+    coord: {
+      lat?: number;
+      lon: number;
+      alt: number;
+    };
+    speed: { value: number; };
+  };
+  fuelLevel?: number
+  dte?: {
+    value: number;
+  }
+}
+
 // Status remapped
 export interface VehicleStatus {
   engine: {
